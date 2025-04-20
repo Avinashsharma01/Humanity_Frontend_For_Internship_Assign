@@ -358,7 +358,7 @@ Humanity Founders is built with modern technologies chosen for performance, scal
 - **Animation**: Framer Motion for smooth UI transitions and effects
 - **Styling**: TailwindCSS 4.1 with custom configuration for utility-first CSS
 - **Icons**: Lucide React and React Icons libraries for visual elements
-- **Guided Tours**: React Joyride for interactive walkthroughs
+- **Guided Tours**: ~~React Joyride for interactive walkthroughs~~ (Functionality disabled)
 - **HTTP Client**: Axios for API requests
 
 ### Development Tools
