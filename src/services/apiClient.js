@@ -1,7 +1,15 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import axios from 'axios';
 
-const API_URL = 'http://34.10.166.233';
+// Use the environment variable from Vite config
+const API_URL = process.env.VITE_API_URL ||
+  (process.env.NODE_ENV === 'production'
+    ? 'https://34.10.166.233'
+    : 'http://34.10.166.233');
+
+console.log('API URL being used:', API_URL);
+
 const TOKEN_KEY = 'userToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
 
@@ -178,7 +186,6 @@ apiClient.interceptors.response.use(
         });
       }
     }
-
 
     return Promise.reject(error);
   }
