@@ -89,7 +89,8 @@ const authService = {
     try {
       // First, check if we're running on Vercel (production)
       const isVercel = typeof window !== 'undefined' &&
-        window.location.hostname.includes('vercel.app');
+        (window.location.hostname.includes('vercel.app') ||
+          window.location.hostname !== 'localhost');
 
       // For Vercel deployments, use the proxied API route
       const loginEndpoint = isVercel ? '/api/auth/login' : '/auth/login';
@@ -97,7 +98,17 @@ const authService = {
       console.log('Auth service: Using login endpoint:', loginEndpoint);
       console.log('Auth service: Credentials:', { email: credentials.email, hasPassword: !!credentials.password });
 
-      const response = await apiClient.post(loginEndpoint, credentials);
+      // Use a timeout and abort controller to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+
+      const response = await apiClient.post(loginEndpoint, credentials, {
+        signal: controller.signal
+      });
+
+      // Clear timeout since request completed
+      clearTimeout(timeoutId);
+
       console.log('Auth service login response:', response.data);
 
       // Check for token format and store correctly
@@ -121,6 +132,13 @@ const authService = {
       return response.data;
     } catch (error) {
       console.error('Login error in authService:', error);
+
+      // Check if the request was aborted due to timeout
+      if (error.name === 'AbortError' || error.code === 'ECONNABORTED') {
+        console.error('Login request timed out');
+        throw new Error('Login request timed out. Please check your internet connection and try again.');
+      }
+
       if (error.response) {
         console.error('Server response:', error.response.data);
       }
@@ -133,16 +151,34 @@ const authService = {
     try {
       // First, check if we're running on Vercel (production)
       const isVercel = typeof window !== 'undefined' &&
-        window.location.hostname.includes('vercel.app');
+        (window.location.hostname.includes('vercel.app') ||
+          window.location.hostname !== 'localhost');
 
       // For Vercel deployments, use the proxied API route
       const registerEndpoint = isVercel ? '/api/auth/register' : '/auth/register';
 
       console.log('Auth service: Using register endpoint:', registerEndpoint);
-      const response = await apiClient.post(registerEndpoint, userData);
+
+      // Use a timeout and abort controller to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+
+      const response = await apiClient.post(registerEndpoint, userData, {
+        signal: controller.signal
+      });
+
+      // Clear timeout since request completed
+      clearTimeout(timeoutId);
+
       storeUserData(response.data, userData);
       return response.data;
     } catch (error) {
+      // Check if the request was aborted due to timeout
+      if (error.name === 'AbortError' || error.code === 'ECONNABORTED') {
+        console.error('Register request timed out');
+        throw new Error('Register request timed out. Please check your internet connection and try again.');
+      }
+
       throw error.response?.data || error.message || 'Registration failed';
     }
   },

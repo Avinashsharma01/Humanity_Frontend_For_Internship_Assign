@@ -3,12 +3,18 @@
 import axios from 'axios';
 
 // Use the environment variable from Vite config with HTTPS by default
+// For Vercel deployments, ensure we use relative paths for API routes
+const isVercelDeployment = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
+
 const API_URL = process.env.VITE_API_URL ||
-  (process.env.NODE_ENV === 'production'
-    ? 'https://34.10.166.233'
-    : 'https://34.10.166.233');
+  (isVercelDeployment
+    ? '' // Use relative paths for Vercel deployments
+    : (process.env.NODE_ENV === 'production'
+      ? 'https://34.10.166.233'
+      : 'https://34.10.166.233'));
 
 console.log('API URL being used:', API_URL);
+console.log('Is Vercel deployment:', isVercelDeployment);
 
 const TOKEN_KEY = 'userToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
@@ -19,8 +25,8 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  // Add timeout to prevent hanging requests
-  timeout: 15000,
+  // Increase timeout for better reliability on variable network conditions
+  timeout: 30000, // Increase to 30 seconds
   // Important for browser support across different environments
   withCredentials: true
 });
