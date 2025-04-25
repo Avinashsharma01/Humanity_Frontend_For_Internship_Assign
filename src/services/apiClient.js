@@ -2,11 +2,11 @@
 /* eslint-disable no-unused-vars */
 import axios from 'axios';
 
-// Use the environment variable from Vite config
+// Use the environment variable from Vite config with HTTPS by default
 const API_URL = process.env.VITE_API_URL ||
   (process.env.NODE_ENV === 'production'
     ? 'https://34.10.166.233'
-    : 'http://34.10.166.233');
+    : 'https://34.10.166.233');
 
 console.log('API URL being used:', API_URL);
 
@@ -18,7 +18,11 @@ const apiClient = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  // Add timeout to prevent hanging requests
+  timeout: 15000,
+  // Important for browser support across different environments
+  withCredentials: true
 });
 
 // Add interceptor to include token in requests

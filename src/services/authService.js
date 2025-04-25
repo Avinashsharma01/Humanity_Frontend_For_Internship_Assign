@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import apiClient from './apiClient';
+import apiClient, { API_URL } from './apiClient';
 
 const TOKEN_KEY = 'userToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
@@ -87,7 +87,17 @@ const authService = {
   // Login user
   login: async (credentials) => {
     try {
-      const response = await apiClient.post('/auth/login', credentials);
+      // First, check if we're running on Vercel (production)
+      const isVercel = typeof window !== 'undefined' &&
+        window.location.hostname.includes('vercel.app');
+
+      // For Vercel deployments, use the proxied API route
+      const loginEndpoint = isVercel ? '/api/auth/login' : '/auth/login';
+
+      console.log('Auth service: Using login endpoint:', loginEndpoint);
+      console.log('Auth service: Credentials:', { email: credentials.email, hasPassword: !!credentials.password });
+
+      const response = await apiClient.post(loginEndpoint, credentials);
       console.log('Auth service login response:', response.data);
 
       // Check for token format and store correctly
@@ -121,7 +131,15 @@ const authService = {
   // Register user
   register: async (userData) => {
     try {
-      const response = await apiClient.post('/auth/register', userData);
+      // First, check if we're running on Vercel (production)
+      const isVercel = typeof window !== 'undefined' &&
+        window.location.hostname.includes('vercel.app');
+
+      // For Vercel deployments, use the proxied API route
+      const registerEndpoint = isVercel ? '/api/auth/register' : '/auth/register';
+
+      console.log('Auth service: Using register endpoint:', registerEndpoint);
+      const response = await apiClient.post(registerEndpoint, userData);
       storeUserData(response.data, userData);
       return response.data;
     } catch (error) {
