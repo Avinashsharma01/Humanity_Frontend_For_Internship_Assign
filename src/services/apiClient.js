@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import axios from 'axios';
 
 const API_URL = 'http://34.10.166.233';
@@ -177,6 +178,7 @@ apiClient.interceptors.response.use(
         });
       }
     }
+
 
     return Promise.reject(error);
   }
